@@ -14,26 +14,28 @@ import {
   IonImg,
   IonActionSheet,
 } from '@ionic/react';
+import { usePhotoGallery } from '../hooks/usePhotoGallery';
 import ExploreContainer from '../components/ExploreContainer';
 import './Tab2.css';
 
 const Tab2: React.FC = () => {
-  return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Photo Gallery</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen>
-        <IonFab vertical='bottom' horizontal='center' slot='fixed'>
-          <IonFabButton onClick={() => takePhoto()}>
-            <IonIcon icon={camera}></IonIcon>
-          </IonFabButton>
-        </IonFab>
-      </IonContent>
-    </IonPage>
-  );
+  const { takePhoto } = usePhotoGallery();
+    return (
+      <IonPage>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Photo Gallery</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent fullscreen>
+          <IonFab vertical='bottom' horizontal='center' slot='fixed'>
+            <IonFabButton onClick={() => takePhoto()}>
+              <IonIcon icon={camera}></IonIcon>
+            </IonFabButton>
+          </IonFab>
+        </IonContent>
+      </IonPage>
+    );
 };
 
 export default Tab2;
