@@ -11,6 +11,9 @@ export interface UserPhoto {
     webviewPath?: string;
 }
 
+//key for the store
+const PHOTO_STORAGE = 'photos';
+
 export function usePhotoGallery(){
     const [photos, setPhotos] = useState<UserPhoto[]>([]);
     const takePhoto = async () => {
@@ -25,6 +28,11 @@ export function usePhotoGallery(){
         const newPhotos = [savedFileImage, ...photos,
         ];
         setPhotos(newPhotos);
+        //Save the photos array 
+        //By adding it here, the Photos array is stored each time a new photo is taken. 
+        //This way, it doesn’t matter when the app user closes or switches to a different app
+        // - all photo data is saved.
+        Preferences.set({key: PHOTO_STORAGE, value: JSON.stringify(newPhotos)})
     };
     
     const savePicture = async (photo: Photo, fileName: string): Promise<UserPhoto> => {
