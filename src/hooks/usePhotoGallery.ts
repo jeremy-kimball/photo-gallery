@@ -19,20 +19,23 @@ export function usePhotoGallery(){
 
     //retrieve data when hook loads using useEffect hook from react
     useEffect(() => {
-        const loadSaved = async () => {
-            const { value } = await Preferences.get({ key: PHOTO_STORAGE });
-            const photosInPreference = (value ? JSON.parse(value) : []) as UserPhoto[];
-
-            for(let photo of photosInPreference) {
-                const file = await Filesystem.readFile({
-                    path: photo.filepath,
-                    directory: Directory.Data,
-                });
-                //Web Platform only: load the photo as base64 data
-                photo.webviewPath = `data:image/jpeg;base64,${file.data}`;
-            }
-            setPhotos(photosInPreference);
-        };
+      const loadSaved = async () => {
+        const { value } = await Preferences.get({ key: PHOTO_STORAGE });
+      
+        const photosInPreferences = (value ? JSON.parse(value) : []) as UserPhoto[];
+        // If running on the web...
+        if (!isPlatform('hybrid')) {
+          for (let photo of photosInPreferences) {
+            const file = await Filesystem.readFile({
+              path: photo.filepath,
+              directory: Directory.Data,
+            });
+            // Web platform only: Load the photo as base64 data
+            photo.webviewPath = `data:image/jpeg;base64,${file.data}`;
+          }
+        }
+        setPhotos(photosInPreferences);
+      };
         loadSaved();
     }, []);
 
@@ -93,7 +96,7 @@ export function usePhotoGallery(){
       photos,
       takePhoto,
   }
-  
+
 }
 
 // Helper util downloads a file from path and returns base64 representation
