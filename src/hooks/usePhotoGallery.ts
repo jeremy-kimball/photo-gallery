@@ -11,8 +11,31 @@ export interface UserPhoto {
     webviewPath?: string;
 }
 
+//key for the store
+const PHOTO_STORAGE = 'photos';
+
 export function usePhotoGallery(){
     const [photos, setPhotos] = useState<UserPhoto[]>([]);
+
+    //retrieve data when hook loads using useEffect hook from react
+    useEffect(() => {
+        const loadSaved = async () => {
+            const { value } = await Preferences.get({ key: PHOTO_STORAGE });
+            const photosInPreference = (value ? JSON.parse(value) : []) as UserPhoto[];
+
+            for(let photo of photosInPreference) {
+                const file = await Filesystem.readFile({
+                    path: photo.filepath,
+                    directory: Directory.Data,
+                });
+                //Web Platform only: load the photo as base64 data
+                photo.webviewPath = `data:image/jpeg;base64,${file.data}`;
+            }
+            setPhotos(photosInPreference);
+        };
+        loadSaved();
+    }, []);
+
     const takePhoto = async () => {
         const photo = await Camera.getPhoto({
             resultType: CameraResultType.Uri,
@@ -25,6 +48,11 @@ export function usePhotoGallery(){
         const newPhotos = [savedFileImage, ...photos,
         ];
         setPhotos(newPhotos);
+        //Save the photos array 
+        //By adding it here, the Photos array is stored each time a new photo is taken. 
+        //This way, it doesn’t matter when the app user closes or switches to a different app
+        // - all photo data is saved.
+        Preferences.set({key: PHOTO_STORAGE, value: JSON.stringify(newPhotos)})
     };
     
     const savePicture = async (photo: Photo, fileName: string): Promise<UserPhoto> => {
