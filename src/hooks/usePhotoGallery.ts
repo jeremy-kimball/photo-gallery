@@ -16,6 +16,26 @@ const PHOTO_STORAGE = 'photos';
 
 export function usePhotoGallery(){
     const [photos, setPhotos] = useState<UserPhoto[]>([]);
+
+    //retrieve data when hook loads using useEffect hook from react
+    useEffect(() => {
+        const loadSaved = async () => {
+            const { value } = await Preferences.get({ key: PHOTO_STORAGE });
+            const photosInPreference = (value ? JSON.parse(value) : []) as UserPhoto[];
+
+            for(let photo of photosInPreference) {
+                const file = await Filesystem.readFile({
+                    path: photo.filepath,
+                    directory: Directory.Data,
+                });
+                //Web Platform only: load the photo as base64 data
+                photo.webviewPath = `data:image/jpeg;base64,${file.data}`;
+            }
+            setPhotos(photosInPreference);
+        };
+        loadSaved();
+    }, []);
+
     const takePhoto = async () => {
         const photo = await Camera.getPhoto({
             resultType: CameraResultType.Uri,
